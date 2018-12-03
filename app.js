@@ -21,10 +21,26 @@ app.use(express.static(`${__dirname}/public`));
 app.get('/', (req, res) => {
   res.render('index');
 })
+// Sucess Route
+app.get('/success', (req, res) => {
+  res.render('success');
+})
 
-//Secondary Test Route
-app.get('/testroute', (req, res) => {
-  res.render('testroute');
+app.post('/charge', (req, res) => {
+  const amount = 2500;
+  //get form data with Body Parser
+  console.log(req.body);
+  stripe.customers.create({
+    email: req.body.stripeEmail,
+    source: req.body.stripeToken
+  })
+  .then(customer => stripe.charges.create({
+    amount,
+    description: 'Stripe Payment Gate',
+    currency: 'GBP',
+    customer: customer.id
+  }))
+  .then(charge => res.render('success'));
 })
 
 const port = process.env.PORT || 5000;
